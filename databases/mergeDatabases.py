@@ -4,6 +4,7 @@ from collections import Counter
 
 twelve = [x.id for x in SeqIO.parse('12S/3-Final/Final_database.fasta', 'fasta')]
 sixteen = [x.id for x in SeqIO.parse('16S/3-Final/Final_database.fasta', 'fasta')]
+coi = [x.id for x in SeqIO.parse('COI/3-Final/Final_database.fasta', 'fasta')]
 
 taxids = {}
 for line in open('12S/3-Final/Final_database_taxids.txt'):
@@ -16,14 +17,19 @@ for line in open('16S/3-Final/Final_database_taxids.txt'):
     name, taxid = ll
     taxids[name] = taxid
 
-c = Counter(twelve + sixteen)
+for line in open('COI/3-Final/Final_database_taxids.txt'):
+    ll = line.split()
+    name, taxid = ll
+    taxids[name] = taxid
+
+c = Counter(twelve + sixteen + coi)
 dups = set()
 for i in c:
     if c[i] != 1:
         dups.add(i)
 
-with open('12S.16S.fasta', 'w') as out, \
-        open('12S.16S.taxids.txt', 'w') as taxout:
+with open('12S.16S.COI.fasta', 'w') as out, \
+        open('12S.16S.COI.taxids.txt', 'w') as taxout:
 
     for t in SeqIO.parse('12S/3-Final/Final_database.fasta', 'fasta'):
         if t.id in dups and t.id.startswith('NC'):
@@ -68,7 +74,26 @@ with open('12S.16S.fasta', 'w') as out, \
             out.write(t.format('fasta'))
             taxout.write(f'{t.id} {taxids[oldid]}\n')
 
+    for t in SeqIO.parse('COI/3-Final/Final_database.fasta', 'fasta'):
+        if t.id in dups and t.id.startswith('NC'):
+            # keep this but rename
+            old_id = t.id
+            t.id = 'COI_' + t.id
+            t.description = 'COI_' + t.description
+            t.name = 'COI_' + t.name
+            out.write(t.format('fasta'))
+            taxout.write(f'{t.id} {taxids[old_id]}\n')
+        elif t.id in dups and not t.id.startswith('NC'):
+            # skip this - we kept it with 12S or 16S
+            continue
+        else:
+            # not a duplicate, keep
+            oldid = t.id
+            if t.id.startswith('NC') or t.id.startswith('MG'):
+                t.id = 'COI_%s'%(t.id)
+            out.write(t.format('fasta'))
+            taxout.write(f'{t.id} {taxids[oldid]}\n')
 
-os.popen('cat 12S.16S.taxids.txt Mitogenomes/mitogenomes_fish_nuccore.renamedFiltered.taxids.txt > 12S.16S.Mitogenomes.taxids.txt').read()
-os.popen('cat 12S.16S.fasta Mitogenomes/mitogenomes_fish_nuccore.renamedFiltered.fasta > 12S.16S.Mitogenomes.fasta').read()
-os.popen('makeblastdb -dbtype nucl -in 12S.16S.Mitogenomes.fasta -parse_seqids -taxid_map 12S.16S.Mitogenomes.taxids.txt').read()
+os.popen('cat 12S.16S.COI.taxids.txt Mitogenomes/mitogenomes_fish_nuccore.renamedFiltered.taxids.txt > 12S.16S.COI.Mitogenomes.taxids.txt').read()
+os.popen('cat 12S.16S.COI.fasta Mitogenomes/mitogenomes_fish_nuccore.renamedFiltered.fasta > 12S.16S.COI.Mitogenomes.fasta').read()
+os.popen('makeblastdb -dbtype nucl -in 12S.16S.COI.Mitogenomes.fasta -parse_seqids -taxid_map 12S.16S.COI.Mitogenomes.taxids.txt').read()

@@ -1,8 +1,8 @@
 from Bio import SeqIO
 import os
 
-#os.popen('grep ">" mitogenomes_fish_nuccore.fasta | cut -f 1 -d " " > names.txt').read()
-#os.popen(f'cat names.txt | efetch -db nuccore -format docsum | xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism > efetch_names_taxids.txt').read()
+os.popen('grep ">" mitogenomes_fish_nuccore.fasta | cut -f 1 -d " " > names.txt').read()
+os.popen(f'cat names.txt | efetch -db nuccore -format docsum | xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism > efetch_names_taxids.txt').read()
 
 taxid_dict = {}
 for line in open('efetch_names_taxids.txt'):
@@ -25,3 +25,4 @@ with open('mitogenomes_fish_nuccore.renamedFiltered.fasta', 'w') as out1, open('
         seq.id = newid
         out1.write(seq.format('fasta'))
         out2.write(f'{thisid} {thistaxid}\n')
+os.popen('rm mitogenomes_fish_nuccore.fasta').read()

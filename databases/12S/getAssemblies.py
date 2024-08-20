@@ -10,26 +10,30 @@ not_in_gene = 'txid88651[ORGN], txid241819[ORGN], txid990930[ORGN], txid178227[O
 
 import os
 all_ids = []
-dl_string = 'esearch -db nuccore -query "('
-other_dl_string = 'esearch -db gene -query "('
-with open('Australian_families_and_taxids.txt') as fh:
+init_dl_string = 'esearch -db nuccore -query "('
+init_other_dl_string = 'esearch -db gene -query "('
+with open('../../taxonomies/Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.taxids.txt') as fh:
     for line in fh:
         ll = line.split()
         if len(ll) != 2:
             continue
         thisid = ll[-1]
         all_ids.append(thisid)
+        dl_string = init_dl_string
         dl_string += f'txid{thisid}[ORGN] OR '
-        if thisid not in not_in_gene:
-            other_dl_string += f'txid{thisid}[ORGN] OR '
 
-# I found some 12S genes that are not marked as mitochondrial.
-# Uncomment the next line if you need those back
-#dl_string = dl_string.rstrip('OR ') + ')' + ' AND (Small subunit [Title] OR 12S[Title] OR 12S ribosomal RNA[Title] OR 12S rRNA[Title]) AND (mitochondrion[Filter] OR plastid[Filter]) NOT environmental sample[Title] NOT environmental samples[Title] NOT environmental[Title] NOT uncultured[Title] NOT unclassified[Title] NOT unidentified[Title] NOT unverified[Title] " | efetch -format fasta > 12s_fish_nuccore.fasta'
-dl_string = dl_string.rstrip('OR ') + ')' + ' AND (Small subunit [Title] OR 12S[Title] OR 12S ribosomal RNA[Title] OR 12S rRNA[Title]) NOT environmental sample[Title] NOT environmental samples[Title] NOT environmental[Title] NOT uncultured[Title] NOT unclassified[Title] NOT unidentified[Title] NOT unverified[Title] " | efetch -format fasta > 12s_fish_nuccore.fasta'
-other_dl_string = other_dl_string.rstrip('OR ') + ') AND (Small subunit[Title] OR 12S[Title]) AND ("source mitochondrion"[property] AND alive[prop])" | efetch -format docsum |   xtract -pattern GenomicInfoType -element ChrAccVer ChrStart ChrStop | while IFS=$\'\\t\' read acn str stp;   do   efetch -db nuccore -format fasta  -id "$acn" -chr_start "$str" -chr_stop "$stp"; done | sed "s/>/>12S_/" > 12s_fish_gene.fasta'
-#print(dl_string)
-#print(other_dl_string)
+        #if thisid not in not_in_gene:
+        #    other_dl_string += f'txid{thisid}[ORGN] OR '
 
-print(dl_string)
-print(other_dl_string)
+        # I found some 12S genes that are not marked as mitochondrial.
+        # Uncomment the next line if you need those back
+        #dl_string = dl_string.rstrip('OR ') + ')' + ' AND (Small subunit [Title] OR 12S[Title] OR 12S ribosomal RNA[Title] OR 12S rRNA[Title]) AND (mitochondrion[Filter] OR plastid[Filter]) NOT environmental sample[Title] NOT environmental samples[Title] NOT environmental[Title] NOT uncultured[Title] NOT unclassified[Title] NOT unidentified[Title] NOT unverified[Title] " | efetch -format fasta > 12s_fish_nuccore.fasta'
+        dl_string = dl_string.rstrip('OR ') + ')' + ' AND (Small subunit [Title] OR 12S[Title] OR 12S ribosomal RNA[Title] OR 12S rRNA[Title]) NOT environmental sample[Title] NOT environmental samples[Title] NOT environmental[Title] NOT uncultured[Title] NOT unclassified[Title] NOT unidentified[Title] NOT unverified[Title] " | efetch -format fasta >> 12s_fish_nuccore.fasta'
+        other_dl_string = init_other_dl_string
+        other_dl_string += f'txid{thisid}[ORGN] OR '
+        other_dl_string = other_dl_string.rstrip('OR ') + ') AND (Small subunit[Title] OR 12S[Title]) AND ("source mitochondrion"[property] AND alive[prop])" | efetch -format docsum |   xtract -pattern GenomicInfoType -element ChrAccVer ChrStart ChrStop | while IFS=$\'\\t\' read acn str stp;   do   efetch -db nuccore -format fasta  -id "$acn" -chr_start "$str" -chr_stop "$stp"; done | sed "s/>/>12S_/" >> 12s_fish_gene.fasta'
+        #print(dl_string)
+        #print(other_dl_string)
+
+        print(dl_string)
+        print(other_dl_string)

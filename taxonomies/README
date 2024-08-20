@@ -1,0 +1,13 @@
+python compare.py | taxonkit name2taxid | taxonkit lineage -i 2 | grep -v Sauria | grep -v Mammalia | grep -v Aves > not_in_fishbase
+
+grep -e Actinopteri -e Elasmo not_in_fishbase > fish_not_in_fishbase_but_in_our_table.txt
+
+cat <(cut -f 1 fish_not_in_fishbase_but_in_our_table.txt)  Fishbase_marine_families.txt > Fishbase_with_our_marine_families.txt
+
+# now we need to re-add the Aves/Mammalia/Sauria previously identified - Fishbase does not have those
+
+cat Australian_families.txt | taxonkit name2taxid | taxonkit lineage -i 2 | grep -e Sauria -e Aves -e Mammalia > Australian_families_only_Aves_Sauria_Mammalia.txt
+
+cat Fishbase_with_our_marine_families.txt <(cut -f 1 Australian_families_only_Aves_Sauria_Mammalia.txt) > Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.txt
+
+cat Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.txt | taxonkit name2taxid | grep '[0-9]' > Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.taxids.txt

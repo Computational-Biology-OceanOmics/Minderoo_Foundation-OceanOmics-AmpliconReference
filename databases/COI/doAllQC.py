@@ -23,6 +23,8 @@ if __name__ == '__main__':
         os.mkdir('0-taxoncheck')
     with open('0-taxoncheck/TAXONKIT_nuccore.txt', 'w') as out,\
             open('0-taxoncheck/TAXONKIT_gene.txt', 'w') as out2:
+        seen = set()
+        duplicates, singletons = 0, 0
         for s in SeqIO.parse(args.infile, 'fasta'):
             # get the taxonomy ID
             # we use entrez
@@ -33,13 +35,19 @@ if __name__ == '__main__':
                 out2.write(f'{thisid}\n')
             else:
                 out.write(f'{s.id}\n')
-            all_seqs.append(s)
+            # remove duplicates
+            if s.id not in seen:
+                all_seqs.append(s)
+                seen.add(s.id)
+                singletons += 1
+            else:
+                duplicates += 1
 
-    #os.popen(f'cat {out.name} | efetch -db nuccore -format docsum > 0-taxoncheck/efetch_nuccore.txt').read()
-    #os.popen(f'cat 0-taxoncheck/efetch_nuccore.txt | xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism > 0-taxoncheck/efetch_names_taxids.txt').read()
-
-    #os.popen(f'cat {out2.name} | efetch -db nuccore -format docsum > 0-taxoncheck/efetch_gene.txt').read()
-    #os.popen(f'cat 0-taxoncheck/efetch_gene.txt | xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism >> 0-taxoncheck/efetch_names_taxids.txt').read()
+    print(f'Removed {duplicates} duplicates and kept {singletons} singletons')
+    if not os.path.exists('0-taxoncheck/efetch_names_taxids.txt') or os.path.getsize('0-taxoncheck/efetch_names_taxids.txt') == 0:
+        print('Using efetch to get taxonomy IDs')
+        os.popen(f'cat {out.name} | efetch -db nuccore -format docsum | xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism > 0-taxoncheck/efetch_names_taxids.txt').read()
+        os.popen(f'cat {out2.name} | efetch -db nuccore -format docsum | xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism >> 0-taxoncheck/efetch_names_taxids.txt').read()
 
     taxid_dict = {}
 
@@ -106,13 +114,16 @@ if __name__ == '__main__':
             taxout.write(f'{s.id} {taxid}\n')
 
     # make the blast database
+    print('making blast database')
     os.popen('makeblastdb -dbtype nucl -in 1-selfblast/selfblastdb.fasta -parse_seqids -taxid_map 1-selfblast/selfblastdb_taxIDs.txt').read()
     if not os.path.exists('1-selfblast/taxdb.tar.gz'):
+        print('downloading taxdb')
         os.popen('wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz -O 1-selfblast/taxdb.tar.gz').read()
         os.popen('tar xzvf 1-selfblast/taxdb.tar.gz --directory 1-selfblast/').read()
 
     # run blast
-    if not os.path.exists('1-selfblast/selfblastdb.results.tsv'):
+    if not os.path.exists('1-selfblast/selfblastdb.results.tsv') or os.path.getsize('1-selfblast/selfblastdb.results.tsv') == 0:
+        print('running blastn')
         os.popen('blastn -db 1-selfblast/selfblastdb.fasta -query 1-selfblast/selfblastdb.fasta -out 1-selfblast/selfblastdb.results.tsv -num_threads 100 -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp" -perc_identity 100 -qcov_hsp_perc 98').read()
 
     # now calculate LCA with my script
