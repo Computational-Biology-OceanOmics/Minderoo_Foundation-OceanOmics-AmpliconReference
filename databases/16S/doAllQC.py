@@ -87,27 +87,27 @@ if __name__ == '__main__':
             # let's check -is this a vague species?
 
             # remove vague species
-            if 'cf.' in s.description or 'sp.' in s.description or ' x ' in s.description or ' X ' in s.description \
-                    or 'aff.' in s.description:
-                # get the other species we have for this genus
-                all_species_for_genus = genus_dict[genus]
-                # we also track all other sp and cf - we have to ignore these
-                all_species_for_genus_clean = set()
-                for l in all_species_for_genus:
-                    if 'cf.' in l or 'sp.' in l or ' x ' in l or ' X ' in l \
-                            or 'aff.' in l:
-                        continue
-                    all_species_for_genus_clean.add(l)
+            #if 'cf.' in s.description or 'sp.' in s.description or ' x ' in s.description or ' X ' in s.description \
+            #        or 'aff.' in s.description:
+            #    # get the other species we have for this genus
+            #    all_species_for_genus = genus_dict[genus]
+            #    # we also track all other sp and cf - we have to ignore these
+            #    all_species_for_genus_clean = set()
+            #    for l in all_species_for_genus:
+            #        #if 'cf.' in l or 'sp.' in l or ' x ' in l or ' X ' in l \
+            #        #        or 'aff.' in l:
+            #        #    continue
+            #        all_species_for_genus_clean.add(l)
 
-                if len(all_species_for_genus_clean) >= 1: 
-                    # we have other species
-                    removed[s.id] =  f'vague species identification ({s.description}), {len(all_species_for_genus_clean)-1} other species exist'
-                    continue
-                # there are some weird cases where people didn't even put the .sp into Genus level, those are sometimes on the
-                # family level
-                if genus.endswith('dae'):
-                    removed[s.id] =  f'vague species identification ({s.description}), with family-level - too high so removing'
-                    continue
+            #    if len(all_species_for_genus_clean) >= 1: 
+            #        # we have other species
+            #        removed[s.id] =  f'vague species identification ({s.description}), {len(all_species_for_genus_clean)-1} other species exist'
+            #        continue
+            #    # there are some weird cases where people didn't even put the .sp into Genus level, those are sometimes on the
+            #    # family level
+            #    if genus.endswith('dae'):
+            #        removed[s.id] =  f'vague species identification ({s.description}), with family-level - too high so removing'
+            #        continue
 
             new_name = f'{s.id} {taxid} {species} {s.description}'
             fastaout.write(f'>{new_name}\n{str(s.seq)}\n')
