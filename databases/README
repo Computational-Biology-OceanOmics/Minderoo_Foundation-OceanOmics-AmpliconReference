@@ -1,0 +1,5 @@
+Follow README in 12S/, 16S/, COI/
+
+Then:
+
+python mergeDatabases.py

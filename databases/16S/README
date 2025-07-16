@@ -1,0 +1,14 @@
+
+
+python getAssemblies.py > downloadAssemblies.sh
+
+conda activate entrez
+
+bash downloadAssemblies.sh
+
+rm -r 0-taxoncheck 1-selfblast 2-LCAs 3-Final
+
+
+cat 16S_fish_gene.fasta 16S_fish_nuccore.fasta > 16S_fish_gene_and_nuccore.fasta
+
+python doAllQC.py -i 16S_fish_gene_and_nuccore.fasta

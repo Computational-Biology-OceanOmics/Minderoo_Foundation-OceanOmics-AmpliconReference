@@ -1,0 +1,10 @@
+
+
+python getAssemblies.py > downloadAssemblies.sh
+
+conda activate entrez
+bash downloadAssemblies.sh
+
+cat c01_fish_gene.fasta c01_fish_nuccore.fasta > c01_fish_gene_and_nuccore.fasta
+
+python doAllQC.py -i c01_fish_gene_and_nuccore.fasta

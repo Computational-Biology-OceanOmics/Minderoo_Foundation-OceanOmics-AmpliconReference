@@ -11,3 +11,7 @@ cat Australian_families.txt | taxonkit name2taxid | taxonkit lineage -i 2 | grep
 cat Fishbase_with_our_marine_families.txt <(cut -f 1 Australian_families_only_Aves_Sauria_Mammalia.txt) > Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.txt
 
 cat Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.txt | taxonkit name2taxid | grep '[0-9]' > Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.taxids.txt
+
+# manually add Danio rerio for positive controls
+
+echo 'Danio rerio\t7955' >> Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.taxids.txt

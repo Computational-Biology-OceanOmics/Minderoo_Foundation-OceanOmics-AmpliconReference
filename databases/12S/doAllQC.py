@@ -46,8 +46,9 @@ if __name__ == '__main__':
     print(f'Removed {duplicates} duplicates and kept {singletons} singletons')
     if not os.path.exists('0-taxoncheck/efetch_names_taxids.txt') or os.path.getsize('0-taxoncheck/efetch_names_taxids.txt') == 0:
         print('Using efetch to get taxonomy IDs')
-        os.popen(f'cat {out.name} | efetch -db nuccore -format docsum | xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism > 0-taxoncheck/efetch_names_taxids.txt').read()
-        os.popen(f'cat {out2.name} | efetch -db nuccore -format docsum | xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism >> 0-taxoncheck/efetch_names_taxids.txt').read()
+        print(f'cat {out.name} | /data/tools/miniconda3_pbayer/envs/entrez/bin/efetch -db nuccore -format docsum | /data/tools/miniconda3_pbayer/envs/entrez/bin//xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism > 0-taxoncheck/efetch_names_taxids.txt')
+        os.popen(f'cat {out.name} | /data/tools/miniconda3_pbayer/envs/entrez/bin/efetch -db nuccore -format docsum | /data/tools/miniconda3_pbayer/envs/entrez/bin/xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism > 0-taxoncheck/efetch_names_taxids.txt').read()
+        os.popen(f'cat {out2.name} | /data/tools/miniconda3_pbayer/envs/entrez/bin/efetch -db nuccore -format docsum | /data/tools/miniconda3_pbayer/envs/entrez/bin/xtract -pattern DocumentSummary -element AccessionVersion,TaxId,Organism >> 0-taxoncheck/efetch_names_taxids.txt').read()
 
     taxid_dict = {}
 
@@ -115,7 +116,7 @@ if __name__ == '__main__':
 
     # make the blast database
     print('making blast database')
-    os.popen('makeblastdb -dbtype nucl -in 1-selfblast/selfblastdb.fasta -parse_seqids -taxid_map 1-selfblast/selfblastdb_taxIDs.txt').read()
+    os.popen('/data/tools/miniconda3_pbayer/envs/blastn/bin/makeblastdb -dbtype nucl -in 1-selfblast/selfblastdb.fasta -parse_seqids -taxid_map 1-selfblast/selfblastdb_taxIDs.txt').read()
     if not os.path.exists('1-selfblast/taxdb.tar.gz'):
         print('downloading taxdb')
         os.popen('wget ftp://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz -O 1-selfblast/taxdb.tar.gz').read()
@@ -124,7 +125,7 @@ if __name__ == '__main__':
     # run blast
     if not os.path.exists('1-selfblast/selfblastdb.results.tsv') or os.path.getsize('1-selfblast/selfblastdb.results.tsv') == 0:
         print('running blastn')
-        os.popen('blastn -db 1-selfblast/selfblastdb.fasta -query 1-selfblast/selfblastdb.fasta -out 1-selfblast/selfblastdb.results.tsv -num_threads 100 -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp" -perc_identity 100 -qcov_hsp_perc 98').read()
+        os.popen('/data/tools/miniconda3_pbayer/envs/blastn/bin/blastn -db 1-selfblast/selfblastdb.fasta -query 1-selfblast/selfblastdb.fasta -out 1-selfblast/selfblastdb.results.tsv -num_threads 100 -outfmt "6 qseqid sseqid staxids sscinames scomnames sskingdoms pident length qlen slen mismatch gapopen gaps qstart qend sstart send stitle evalue bitscore qcovs qcovhsp" -perc_identity 100 -qcov_hsp_perc 98').read()
 
     # now calculate LCA with my script
     os.popen('python computeLCA.py 1-selfblast/selfblastdb.results.tsv > 1-selfblast/selfblastdb.LCAs.tsv').read()
@@ -255,7 +256,7 @@ if __name__ == '__main__':
             outfasta.write(seq.format('fasta'))
     
     # now format the BLAST database
-    os.popen('makeblastdb -dbtype nucl -in 3-Final/Final_database.fasta -parse_seqids -taxid_map 3-Final/Final_database_taxids.txt').read()
+    os.popen('/data/tools/miniconda3_pbayer/envs/blastn/bin/makeblastdb -dbtype nucl -in 3-Final/Final_database.fasta -parse_seqids -taxid_map 3-Final/Final_database_taxids.txt').read()
 
     # now make stats for removal
     for i in removed:

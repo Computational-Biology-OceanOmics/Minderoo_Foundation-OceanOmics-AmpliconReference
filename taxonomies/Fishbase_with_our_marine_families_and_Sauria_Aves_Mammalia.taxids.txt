@@ -176,6 +176,7 @@ Gonostomatidae	48439
 Gonostomatidae	2025516
 Grammatidae	274798
 Grammicolepididae	31099
+Gurgesiellidae	3349725
 Gymnuridae	86359
 Haemulidae	30840
 Halosauridae	143897
@@ -209,6 +210,7 @@ Lactariidae	30845
 Lampridae	81368
 Lateolabracidae	1204718
 Latidae	8184
+Latimeriidae	7895
 Latridae	97158
 Leiognathidae	30846
 Leptobramidae	30847
@@ -474,3 +476,5 @@ Spheniscidae	9231
 Stercorariidae	54049
 Sulidae	30446
 Threskiornithidae	33574
+Ziphiidae	9756
+Danio rerio	7955
