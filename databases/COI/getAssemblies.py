@@ -4,11 +4,20 @@
 
 # error taxa
 
+import sys
+
+if len(sys.argv) != 2:
+    print("Usage: python getAssemblies.py <taxonomy_file_path>", file=sys.stderr)
+    sys.exit(1)
+
+taxonomy_file_path = sys.argv[1]
+
+
 import os
 all_ids = []
 init_dl_string = 'esearch -db nuccore -query \'('
 init_other_dl_string = 'esearch -db gene -query \'('
-with open('../../taxonomies/Fishbase_with_our_marine_families_and_Sauria_Aves_Mammalia.taxids.txt') as fh:
+with open(taxonomy_file_path) as fh:
     for line in fh:
         ll = line.split()
         if len(ll) != 2:

@@ -8,6 +8,17 @@ The final database formatted for BLAST with taxonomy IDs is in databases/12S.16S
 
 The taxonomies/ folder contains Australian Actinopterygii + Elasmobranchii + Aves + Sauria + Mammalia families, and all marine fish families via fishbase. We first started out wanting only Australian families but then expanded that for deep sea work, so the download and QC scripts now take all marine familis.
 
+
+# Nextflow
+
+I used Claude Code to move all of the logic into a nextflow pipeline.
+
+Navigate into databases/, and run 
+
+    nextflow main.nf
+
+which should run everything.
+
 # Scripts
 
 - getAssemblies.py - for each 12S, 16S, and COI. Writes an entrez script that downloads 12S, 16S, and COI sequences for sharks, bony fish, marine mammals, birds, and reptiles. The equivalent in the mitogenomes folder downloads entire genomes.

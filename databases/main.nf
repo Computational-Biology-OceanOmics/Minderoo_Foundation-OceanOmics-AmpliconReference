@@ -44,15 +44,66 @@ process RUN_16S_PIPELINE {
     """
 }
 
+process RUN_COI_PIPELINE {
+    publishDir "COI", mode: 'copy'
+    
+    input:
+    path taxonomy_file
+    
+    output:
+    path "COI/3-Final/Final_database.fasta", emit: final_db
+    path "COI/3-Final/QC_Removal_stats.tsv", emit: removal_stats
+    path "COI/3-Final/QC_Removal_summary_stats.tsv", emit: summary_stats
+    path "COI/3-Final/Final_database_taxids.txt", emit: taxids
+    path "COI/3-Final/Final_database.fasta.n*", emit: blast_db_files
+    
+    script:
+    """
+    cd COI
+    nextflow run main.nf --taxonomy_file ${taxonomy_file}
+    """
+}
+
+process MERGE_DATABASES {
+    publishDir ".", mode: 'copy'
+    
+    input:
+    path twelve_s_db
+    path twelve_s_taxids
+    path sixteen_s_db
+    path sixteen_s_taxids
+    path coi_db
+    path coi_taxids
+    
+    output:
+    path "12S.16S.COI.fasta", emit: merged_fasta
+    path "12S.16S.COI.taxids.txt", emit: merged_taxids
+    path "12S.16S.COI.Mitogenomes.fasta", emit: final_fasta
+    path "12S.16S.COI.Mitogenomes.taxids.txt", emit: final_taxids
+    path "12S.16S.COI.Mitogenomes.fasta.n*", emit: blast_db_files
+    
+    script:
+    """
+    python3 mergeDatabases.py
+    """
+}
+
 workflow {
     // Input taxonomy file
     taxonomy_ch = Channel.fromPath(params.taxonomy_file)
     
-    // Run both pipelines in parallel
+    // Run all three pipelines in parallel
     RUN_12S_PIPELINE(taxonomy_ch)
     RUN_16S_PIPELINE(taxonomy_ch)
+    RUN_COI_PIPELINE(taxonomy_ch)
     
-    // Optional: collect outputs for further processing
-    // all_final_dbs = RUN_12S_PIPELINE.out.final_db.mix(RUN_16S_PIPELINE.out.final_db)
-    // all_stats = RUN_12S_PIPELINE.out.removal_stats.mix(RUN_16S_PIPELINE.out.removal_stats)
+    // Merge databases after all pipelines complete
+    MERGE_DATABASES(
+        RUN_12S_PIPELINE.out.final_db,
+        RUN_12S_PIPELINE.out.taxids,
+        RUN_16S_PIPELINE.out.final_db,
+        RUN_16S_PIPELINE.out.taxids,
+        RUN_COI_PIPELINE.out.final_db,
+        RUN_COI_PIPELINE.out.taxids
+    )
 }
