@@ -16,7 +16,7 @@ process GENERATE_DOWNLOAD_SCRIPTS {
     
     script:
     """
-    python ${projectDir}/getAssemblies.py > downloadAssemblies.sh
+    python ${projectDir}/getAssemblies.py ${taxonomy_file} > downloadAssemblies.sh
     """
 }
 
@@ -82,6 +82,17 @@ process QC_PIPELINE {
 }
 
 workflow {
+    // Check if pipeline was run recently (within 4 weeks)
+    final_db_file = file("${params.output_dir}/3-Final/Final_database.fasta")
+    
+    if (final_db_file.exists()) {
+        long file_age_days = (System.currentTimeMillis() - final_db_file.lastModified()) / (1000 * 60 * 60 * 24)
+        if (file_age_days < 28) {
+            println "Pipeline was run ${file_age_days} days ago. Skipping execution (threshold: 28 days)."
+            return
+        }
+    }
+    
     // Input taxonomy file
     taxonomy_ch = Channel.fromPath(params.taxonomy_file)
     
