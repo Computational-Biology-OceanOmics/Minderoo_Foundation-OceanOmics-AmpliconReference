@@ -3,3 +3,8 @@ efetch*
 TAXONKIT*
 *TEMP*
 taxdb*
+work/
+trace.txt
+*html
+.nextflow.log*
+.nextflow/
