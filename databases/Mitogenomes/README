@@ -1,0 +1,5 @@
+
+conda activate entrez
+python getAssemblies.py
+
+python RenameAndRemove.py

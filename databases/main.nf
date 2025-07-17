@@ -64,6 +64,23 @@ process RUN_COI_PIPELINE {
     """
 }
 
+process RUN_MITOGENOMES_PIPELINE {
+    publishDir "Mitogenomes", mode: 'copy'
+    
+    input:
+    path taxonomy_file
+    
+    output:
+    path "Mitogenomes/mitogenomes_fish_nuccore.renamedFiltered.fasta", emit: final_fasta
+    path "Mitogenomes/mitogenomes_fish_nuccore.renamedFiltered.taxids.txt", emit: final_taxids
+    
+    script:
+    """
+    cd Mitogenomes
+    nextflow run main.nf --taxonomy_file ${taxonomy_file}
+    """
+}
+
 process MERGE_DATABASES {
     publishDir ".", mode: 'copy'
     
@@ -74,6 +91,8 @@ process MERGE_DATABASES {
     path sixteen_s_taxids
     path coi_db
     path coi_taxids
+    path mitogenomes_fasta
+    path mitogenomes_taxids
     
     output:
     path "12S.16S.COI.fasta", emit: merged_fasta
@@ -92,10 +111,11 @@ workflow {
     // Input taxonomy file
     taxonomy_ch = Channel.fromPath(params.taxonomy_file)
     
-    // Run all three pipelines in parallel
+    // Run all four pipelines in parallel
     RUN_12S_PIPELINE(taxonomy_ch)
     RUN_16S_PIPELINE(taxonomy_ch)
     RUN_COI_PIPELINE(taxonomy_ch)
+    RUN_MITOGENOMES_PIPELINE(taxonomy_ch)
     
     // Merge databases after all pipelines complete
     MERGE_DATABASES(
@@ -104,6 +124,8 @@ workflow {
         RUN_16S_PIPELINE.out.final_db,
         RUN_16S_PIPELINE.out.taxids,
         RUN_COI_PIPELINE.out.final_db,
-        RUN_COI_PIPELINE.out.taxids
+        RUN_COI_PIPELINE.out.taxids,
+        RUN_MITOGENOMES_PIPELINE.out.final_fasta,
+        RUN_MITOGENOMES_PIPELINE.out.final_taxids
     )
 }
