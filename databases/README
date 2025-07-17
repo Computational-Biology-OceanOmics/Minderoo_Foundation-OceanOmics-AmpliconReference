@@ -1,5 +1,7 @@
-Follow README in 12S/, 16S/, COI/
+# Databases
 
-Then:
+We have four folders here, containing 12S, 16S, COI, and full Mitogenomes for Australian marine vertebrates. Every folder contains a separate nextflow.
 
-python mergeDatabases.py
+This folder (databases/) contains a Nextflow workflow that runs the 12S/16S/COI/Mitogenomes workflows in parallel.
+
+    nextflow main.nf

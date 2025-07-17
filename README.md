@@ -4,7 +4,7 @@ This repository contains the Minderoo Foundation OceanOmics amplicon databases a
 
 Currently the repository is structured into three folders: one for 12S genes, one for 16S genes, one for COI genes, and one for publicly available mitogenomes.
 
-The final database formatted for BLAST with taxonomy IDs is in databases/12S.16S.Mitogenomes.v0.1.fasta.gz
+The final database formatted for BLAST with taxonomy IDs is in databases/12S.16S.Mitogenomes.fasta.gz
 
 The taxonomies/ folder contains Australian Actinopterygii + Elasmobranchii + Aves + Sauria + Mammalia families, and all marine fish families via fishbase. We first started out wanting only Australian families but then expanded that for deep sea work, so the download and QC scripts now take all marine familis.
 
